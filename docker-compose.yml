@@ -1,0 +1,35 @@
+version: '3.4'
+
+services:
+  nginx:
+    image: nginx
+    container_name: nginx-balancer
+    volumes:
+      - ./nginx-balancer/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - api
+    ports:
+      - "6001:7000"
+    restart: always
+
+  nginx-html:
+    image: nginx
+    container_name: nginx-html
+    volumes:
+      - ./html:/usr/share/nginx/html:ro
+    depends_on:
+      - nginx
+    ports:
+      - "8080:80"
+    restart: always
+
+  api:
+    build:
+      context: ml_volume
+    volumes:
+      - ./ml_volume:/app/ml_volume:ro
+    restart: always
+    expose:
+      - "8000"
+    deploy:
+      replicas: 3
